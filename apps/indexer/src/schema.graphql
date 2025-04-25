@@ -1,0 +1,7 @@
+type StakingEvent @entity {
+  id: ID!
+  tokenId: String!
+  user: String!
+  eventType: String! # "STAKED" ou "UNSTAKED"
+  timestamp: Int!
+}
