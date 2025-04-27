@@ -19,6 +19,7 @@
       }
     ],
     "paths": {
+      "@abis/*": ["../indexer/abis/*"],
       "@/*": ["./src/*"],
       "@bleu-builders/tech-challenge-ui": ["../packages/ui/src"],
       "@bleu-builders/tech-challenge-ui/*": ["../packages/ui/src/*"]

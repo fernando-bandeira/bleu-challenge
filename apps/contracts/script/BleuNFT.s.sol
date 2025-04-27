@@ -13,7 +13,7 @@ contract BleuNFTScript is Script {
         vm.startBroadcast();
 
         nft = new BleuNFT();
-        nft.mint(msg.sender, 1);
+        nft.mint(msg.sender);
 
         vm.stopBroadcast();
     }
