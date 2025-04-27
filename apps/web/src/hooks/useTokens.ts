@@ -2,19 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { request, gql } from 'graphql-request';
+import { useAccount } from 'wagmi';
 
 const GRAPHQL_ENDPOINT = 'http://localhost:42069/';
 
 const TOKENS_QUERY = gql`
-  query TokensQuery {
-    stakedEventss {
+  query TokensQuery($user: String!) {
+    stakedEventss(where: { user: $user }) {
       items {
         tokenId
         timestamp
         user
       }
     }
-    unstakedEventss {
+    unstakedEventss(where: { user: $user }) {
       items {
         tokenId
         timestamp
@@ -36,14 +37,19 @@ type TokensResponse = {
 };
 
 export function useTokens() {
+  const { address } = useAccount();
   const [stakedTokens, setStakedTokens] = useState<Token[]>([]);
   const [unstakedTokens, setUnstakedTokens] = useState<Token[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!address) return;
+
     async function fetchTokens() {
       try {
-        const data = await request<TokensResponse>(GRAPHQL_ENDPOINT, TOKENS_QUERY);
+        const data = await request<TokensResponse>(GRAPHQL_ENDPOINT, TOKENS_QUERY, {
+          user: address?.toLowerCase() ?? '',
+        });
         setStakedTokens(data.stakedEventss.items);
         setUnstakedTokens(data.unstakedEventss.items);
       } catch (error) {
@@ -54,7 +60,7 @@ export function useTokens() {
     }
 
     fetchTokens();
-  }, []);
+  }, [address]);
 
   return { stakedTokens, unstakedTokens, loading };
 }
