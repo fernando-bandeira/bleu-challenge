@@ -6,7 +6,7 @@ export default createConfig({
   networks: {
     anvil: {
       chainId: 31337,
-      transport: http('http://127.0.0.1:8545'),
+      transport: http(process.env.ANVIL_ENDPOINT),
       disableCache: true
     }
   },

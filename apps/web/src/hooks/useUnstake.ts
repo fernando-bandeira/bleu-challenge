@@ -9,7 +9,7 @@ export function useUnstake() {
   const { writeContractAsync, isPending } = useWriteContract();
 
   const unstake = async (tokenId: string) => {
-    await writeContractAsync({
+    return await writeContractAsync({
       address: CONTRACT_ADDRESS,
       abi: BleuNFTAbi,
       functionName: 'unstake',

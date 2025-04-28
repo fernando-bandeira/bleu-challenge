@@ -1,19 +1,22 @@
 'use client';
 
-import { useAccount } from 'wagmi';
 import { useTokens } from '@/hooks/useTokens';
 import { useStake } from '@/hooks/useStake';
 import { useUnstake } from '@/hooks/useUnstake';
 import { useMint } from '@/hooks/useMint';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import { waitForTransactionReceipt } from 'wagmi/actions';
+import { config } from '@/lib/wagmi';
+import { getTokenFromReceipt, getTransactionErrorMessage, handleTokenAction } from '@/lib/contractUtils';
 
 export default function Home() {
   const { stakedTokens, unstakedTokens, loading } = useTokens();
   const [loadingTokens, setLoadingTokens] = useState<{ [key: string]: boolean }>({});
   const { stake, isPending: isStaking } = useStake();
   const { unstake, isPending: isUnstaking } = useUnstake();
-  const { mint, isPending: isMinting } =  useMint();
+  const { mint, isPending: isMinting } = useMint();
   const [stakedTokensList, setStakedTokensList] = useState(stakedTokens);
   const [unstakedTokensList, setUnstakedTokensList] = useState(unstakedTokens);
 
@@ -27,54 +30,51 @@ export default function Home() {
   if (loading) return <div>Loading tokens...</div>;
 
   const handleStake = async (tokenId: string) => {
-    setLoadingTokens((prevState) => ({
-      ...prevState,
-      [tokenId.toString()]: true,
-    }));
-    try {
-      await stake(tokenId);
-      console.log(`Successfully staked token ${tokenId}`);
-      // Add current token to staked list and remove it from unstaked list
-      const token = unstakedTokensList.find(token => token.tokenId === tokenId);
-      if (token) {
-        setStakedTokensList((prev) => [...prev, token]);
-        setUnstakedTokensList((prev) => prev.filter(t => t.tokenId !== tokenId));
-      }
-    } catch (error) {
-      console.error('Error staking token:', error);
-    } finally {
-      setLoadingTokens((prevState) => ({
-        ...prevState,
-        [tokenId.toString()]: false,
-      }));
-    }
+    await handleTokenAction(
+      tokenId,
+      'stake',
+      stake,
+      unstakedTokensList,
+      stakedTokensList,
+      setStakedTokensList,
+      setUnstakedTokensList,
+      setLoadingTokens,
+      'Token staked successfully!',
+      'Transaction failed while staking.'
+    );
   };
 
   const handleUnstake = async (tokenId: string) => {
-    setLoadingTokens((prevState) => ({
-      ...prevState,
-      [tokenId.toString()]: true,
-    }));
-    try {
-      await unstake(tokenId);
-      console.log(`Successfully unstaked token ${tokenId}`);
-      const token = stakedTokensList.find(token => token.tokenId === tokenId);
-      if (token) {
-        setUnstakedTokensList((prev) => [...prev, token]);
-        setStakedTokensList((prev) => prev.filter(t => t.tokenId !== tokenId));
-      }
-    } catch (error) {
-      console.error('Error unstaking token:', error);
-    } finally {
-      setLoadingTokens((prevState) => ({
-        ...prevState,
-        [tokenId.toString()]: false,
-      }));
-    }
+    await handleTokenAction(
+      tokenId,
+      'unstake',
+      unstake,
+      unstakedTokensList,
+      stakedTokensList,
+      setStakedTokensList,
+      setUnstakedTokensList,
+      setLoadingTokens,
+      'Token unstaked successfully!',
+      'Transaction failed while unstaking.'
+    );
   };
 
   const handleMint = async () => {
-    mint();
+    try {
+      const hash = await mint();
+      if (!hash) {
+        toast.error('Failed to start minting transaction.');
+        return;
+      }
+      const receipt = await waitForTransactionReceipt(config, { hash });
+      const newToken = getTokenFromReceipt(receipt);
+      if (newToken) {
+        setUnstakedTokensList((prev) => [...prev, newToken]);
+      }
+      toast.success('Token minted successfully!');
+    } catch (error: any) {
+      toast(getTransactionErrorMessage(error));
+    }
   };
 
   return (
@@ -87,12 +87,12 @@ export default function Home() {
           onClick={() => handleMint()}
           className="text-lg font-semibold py-3 px-6 rounded-full transition duration-200 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          Mint
+          Mint new NFT
         </Button>
       </div>
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Staked NFTs</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
           {stakedTokensList.length > 0 ? (
             stakedTokensList.map((token) => (
               <div
@@ -118,7 +118,7 @@ export default function Home() {
 
       <div>
         <h2 className="text-2xl font-semibold mb-4">Unstaked NFTs</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
           {unstakedTokensList.length > 0 ? (
             unstakedTokensList.map((token) => (
               <div

@@ -4,6 +4,7 @@ import './globals.css';
 import Header from '@/components/header';
 import { cn } from '@/lib/utils';
 import { Providers } from '@/providers';
+import { Toaster } from 'sonner';
 
 const rubik = Rubik({
   weight: ['400', '500', '700'],
@@ -26,6 +27,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <Toaster />
         </Providers>
       </body>
     </html>

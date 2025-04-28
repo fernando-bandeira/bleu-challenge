@@ -15,16 +15,12 @@ export function useMint() {
       return;
     }
 
-    try {
-      await writeContractAsync({
-        address: CONTRACT_ADDRESS,
-        abi: BleuNFTAbi,
-        functionName: 'mint',
-        args: [address],
-      });
-    } catch (error) {
-      console.error('Error minting token:', error);
-    }
+    return await writeContractAsync({
+      address: CONTRACT_ADDRESS,
+      abi: BleuNFTAbi,
+      functionName: 'mint',
+      args: [address],
+    });
   };
 
   return { mint, isPending };

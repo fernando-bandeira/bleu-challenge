@@ -9,7 +9,7 @@ export function useStake() {
   const { writeContractAsync, isPending } = useWriteContract();
 
   const stake = async (tokenId: string) => {
-    await writeContractAsync({
+    return await writeContractAsync({
       address: CONTRACT_ADDRESS,
       abi: BleuNFTAbi,
       functionName: 'stake',

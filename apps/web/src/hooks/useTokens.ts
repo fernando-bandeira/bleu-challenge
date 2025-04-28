@@ -11,24 +11,18 @@ const TOKENS_QUERY = gql`
     stakedEventss(where: { user: $user }) {
       items {
         tokenId
-        timestamp
-        user
       }
     }
     unstakedEventss(where: { user: $user }) {
       items {
         tokenId
-        timestamp
-        user
       }
     }
   }
 `;
 
-type Token = {
+export type Token = {
   tokenId: string;
-  timestamp: string;
-  user: string;
 };
 
 type TokensResponse = {
