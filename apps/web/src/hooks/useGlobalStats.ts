@@ -13,12 +13,6 @@ const GLOBAL_STATS_QUERY = gql`
         user
       }
     }
-    unstakedEventss {
-      items {
-        tokenId
-        user
-      }
-    }
   }
 `;
 
@@ -29,7 +23,6 @@ type TokenEvent = {
 
 type StatsResponse = {
   stakedEventss: { items: TokenEvent[] };
-  unstakedEventss: { items: TokenEvent[] };
 };
 
 export function useGlobalStats() {
@@ -43,19 +36,10 @@ export function useGlobalStats() {
       try {
         const data = await request<StatsResponse>(GRAPHQL_ENDPOINT, GLOBAL_STATS_QUERY);
 
-        const stakedTokens = new Map<string, string>();
-        data.stakedEventss.items.forEach((e) => {
-          stakedTokens.set(e.tokenId, e.user);
-        });
-
-        data.unstakedEventss.items.forEach((e) => {
-          stakedTokens.delete(e.tokenId);
-        });
-
-        setTotalStaked(stakedTokens.size);
+        setTotalStaked(data.stakedEventss.items.length);
 
         const userCounts = new Map<string, number>();
-        for (const user of stakedTokens.values()) {
+        for (const { user } of data.stakedEventss.items) {
           userCounts.set(user, (userCounts.get(user) || 0) + 1);
         }
 
@@ -70,6 +54,7 @@ export function useGlobalStats() {
         setLoading(false);
       }
     }
+
 
     fetchStats();
   }, []);
