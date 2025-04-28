@@ -110,7 +110,7 @@ export default function Home() {
               />
             ))
           ) : (
-            <div className="text-center text-gray-500">No tokens staked</div>
+            <div className="text-center text-gray-500">No tokens to show.</div>
           )}
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function Home() {
               />
             ))
           ) : (
-            <div className="text-center text-gray-500">No tokens unstaked</div>
+            <div className="text-center text-gray-500">No tokens to show.</div>
           )}
         </div>
       </div>
