@@ -70,8 +70,10 @@ export default function Home() {
       const newToken = getTokenFromReceipt(receipt);
       if (newToken) {
         setUnstakedTokensList((prev) => [...prev, newToken]);
+        toast.success('Token minted successfully!');
+      } else {
+        toast.warning('Mint succeeded, but no new token found. Try refreshing the page.');
       }
-      toast.success('Token minted successfully!');
     } catch (error: any) {
       toast(getTransactionErrorMessage(error));
     }
@@ -85,7 +87,8 @@ export default function Home() {
         <Button
           variant="default"
           onClick={() => handleMint()}
-          className="text-lg font-semibold py-3 px-6 rounded-full transition duration-200 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="text-lg font-semibold py-3 px-6 rounded-full transition duration-200 ease-in-out hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+          disabled={isStaking || isUnstaking || isMinting}
         >
           Mint new NFT
         </Button>
@@ -99,12 +102,12 @@ export default function Home() {
                 key={token.tokenId}
                 className="border rounded-2xl p-4 flex flex-col items-center bg-green-50 shadow-md"
               >
-                <div className="text-lg font-semibold">Token ID: {token.tokenId.toString()}</div>
-                <div className="text-sm text-gray-600 mb-4">Staked</div>
+                <div className="text-lg font-semibold text-gray-800">Token ID: {token.tokenId.toString()}</div>
                 <Button
-                  variant="destructive"
+                  variant="outline"
+                  className="cursor-pointer"
                   onClick={() => handleUnstake(token.tokenId)}
-                  disabled={loadingTokens[token.tokenId.toString()] || isUnstaking}
+                  disabled={loadingTokens[token.tokenId.toString()] || isStaking || isUnstaking || isMinting}
                 >
                   {loadingTokens[token.tokenId.toString()] ? 'Unstaking...' : 'Unstake'}
                 </Button>
@@ -125,12 +128,12 @@ export default function Home() {
                 key={token.tokenId}
                 className="border rounded-2xl p-4 flex flex-col items-center bg-yellow-50 shadow-md"
               >
-                <div className="text-lg font-semibold">Token ID: {token.tokenId.toString()}</div>
-                <div className="text-sm text-gray-600 mb-4">Unstaked</div>
+                <div className="text-lg font-semibold text-gray-800">Token ID: {token.tokenId.toString()}</div>
                 <Button
                   variant="default"
+                  className="cursor-pointer"
                   onClick={() => handleStake(token.tokenId)}
-                  disabled={loadingTokens[token.tokenId.toString()] || isStaking}
+                  disabled={loadingTokens[token.tokenId.toString()] || isStaking || isUnstaking || isMinting}
                 >
                   {loadingTokens[token.tokenId.toString()] ? 'Staking...' : 'Stake'}
                 </Button>
