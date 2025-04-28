@@ -52,6 +52,8 @@ export function useTokens() {
         }
       }
       fetchTokens();
+    } else {
+      setLoading(false);
     }
   }, [address]);
 

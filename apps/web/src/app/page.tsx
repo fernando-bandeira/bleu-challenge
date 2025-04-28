@@ -61,7 +61,7 @@ export default function Home() {
     try {
       const hash = await mint();
       if (!hash) {
-        toast.error('Failed to start minting transaction.');
+        toast.error('Please connect your wallet before minting.');
         return;
       }
       const receipt = await waitForTransactionReceipt(config, { hash });
@@ -73,7 +73,8 @@ export default function Home() {
         toast.warning('Mint succeeded, but no new token found. Try refreshing the page.');
       }
     } catch (error: any) {
-      toast(getTransactionErrorMessage(error));
+      console.log(error);
+      toast.error(getTransactionErrorMessage(error));
     }
   };
 

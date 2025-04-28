@@ -11,8 +11,7 @@ export function useMint() {
 
   const mint = async () => {
     if (!address) {
-      console.error('No address found.');
-      return;
+      return null;
     }
 
     return await writeContractAsync({
