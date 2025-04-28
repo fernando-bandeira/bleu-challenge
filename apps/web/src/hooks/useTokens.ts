@@ -37,27 +37,23 @@ export function useTokens() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!address) {
-      setLoading(false);
-      return;
-    }
-
-    async function fetchTokens() {
-      try {
-        const data = await request<TokensResponse>(GRAPHQL_ENDPOINT, TOKENS_QUERY, {
-          user: address?.toLowerCase() ?? '',
-        });
-        setStakedTokens(data.stakedEventss.items);
-        setUnstakedTokens(data.unstakedEventss.items);
-      } catch (error) {
-        console.error('Failed to fetch tokens', error);
-      } finally {
-        setLoading(false);
+    if (address) {
+      async function fetchTokens() {
+        try {
+          const data = await request<TokensResponse>(GRAPHQL_ENDPOINT, TOKENS_QUERY, {
+            user: address?.toLowerCase() ?? '',
+          });
+          setStakedTokens(data.stakedEventss.items);
+          setUnstakedTokens(data.unstakedEventss.items);
+        } catch (error) {
+          console.error('Failed to fetch tokens', error);
+        } finally {
+          setLoading(false);
+        }
       }
+      fetchTokens();
     }
-
-    fetchTokens();
   }, [address]);
 
-  return { stakedTokens, unstakedTokens, loading };
+  return { stakedTokens, unstakedTokens, setStakedTokens, setUnstakedTokens, loading };
 }

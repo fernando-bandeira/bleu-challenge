@@ -44,10 +44,10 @@ export const handleTokenAction = async (
   tokenId: string,
   action: 'stake' | 'unstake',
   actionMethod: (tokenId: string) => Promise<string>,
-  unstakedTokensList: Token[],
-  stakedTokensList: Token[],
-  setStakedTokensList: React.Dispatch<React.SetStateAction<Token[]>>,
-  setUnstakedTokensList: React.Dispatch<React.SetStateAction<Token[]>>,
+  unstakedTokens: Token[],
+  stakedTokens: Token[],
+  setStakedTokens: React.Dispatch<React.SetStateAction<Token[]>>,
+  setUnstakedTokens: React.Dispatch<React.SetStateAction<Token[]>>,
   setLoadingTokens: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>,
   successMessage: string,
   errorMessage: string
@@ -66,17 +66,17 @@ export const handleTokenAction = async (
 
       // Get token from correct list
       const token = action === 'stake'
-        ? unstakedTokensList.find((token) => token.tokenId === tokenId)
-        : stakedTokensList.find((token) => token.tokenId === tokenId);
+        ? unstakedTokens.find((token) => token.tokenId === tokenId)
+        : stakedTokens.find((token) => token.tokenId === tokenId);
 
       // Add/remove token from staked/unstaked lists
       if (token) {
         if (action === 'stake') {
-          setStakedTokensList((prev) => [...prev, token]);
-          setUnstakedTokensList((prev) => prev.filter((t) => t.tokenId !== tokenId));
+          setStakedTokens((prev) => [...prev, token]);
+          setUnstakedTokens((prev) => prev.filter((t) => t.tokenId !== tokenId));
         } else {
-          setUnstakedTokensList((prev) => [...prev, token]);
-          setStakedTokensList((prev) => prev.filter((t) => t.tokenId !== tokenId));
+          setUnstakedTokens((prev) => [...prev, token]);
+          setStakedTokens((prev) => prev.filter((t) => t.tokenId !== tokenId));
         }
       }
     } else {

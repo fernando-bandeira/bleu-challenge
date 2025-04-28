@@ -5,39 +5,37 @@ import { useStake } from '@/hooks/useStake';
 import { useUnstake } from '@/hooks/useUnstake';
 import { useMint } from '@/hooks/useMint';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { waitForTransactionReceipt } from 'wagmi/actions';
 import { config } from '@/lib/wagmi';
 import { getTokenFromReceipt, getTransactionErrorMessage, handleTokenAction } from '@/lib/contractUtils';
+import { Loader2 } from 'lucide-react';
+import TokenCard from '@/components/token-card';
 
 export default function Home() {
-  const { stakedTokens, unstakedTokens, loading } = useTokens();
+  const { stakedTokens, unstakedTokens, setStakedTokens, setUnstakedTokens, loading } = useTokens();
   const [loadingTokens, setLoadingTokens] = useState<{ [key: string]: boolean }>({});
   const { stake, isPending: isStaking } = useStake();
   const { unstake, isPending: isUnstaking } = useUnstake();
   const { mint, isPending: isMinting } = useMint();
-  const [stakedTokensList, setStakedTokensList] = useState(stakedTokens);
-  const [unstakedTokensList, setUnstakedTokensList] = useState(unstakedTokens);
 
-  useEffect(() => {
-    if (!loading) {
-      setStakedTokensList(stakedTokens);
-      setUnstakedTokensList(unstakedTokens);
-    }
-  }, [stakedTokens, unstakedTokens, loading]);
-
-  if (loading) return <div>Loading tokens...</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-64 space-y-4">
+      <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+      <p className="text-gray-600 text-lg font-semibold">Loading...</p>
+    </div>
+  );
 
   const handleStake = async (tokenId: string) => {
     await handleTokenAction(
       tokenId,
       'stake',
       stake,
-      unstakedTokensList,
-      stakedTokensList,
-      setStakedTokensList,
-      setUnstakedTokensList,
+      unstakedTokens,
+      stakedTokens,
+      setStakedTokens,
+      setUnstakedTokens,
       setLoadingTokens,
       'Token staked successfully!',
       'Transaction failed while staking.'
@@ -49,10 +47,10 @@ export default function Home() {
       tokenId,
       'unstake',
       unstake,
-      unstakedTokensList,
-      stakedTokensList,
-      setStakedTokensList,
-      setUnstakedTokensList,
+      unstakedTokens,
+      stakedTokens,
+      setStakedTokens,
+      setUnstakedTokens,
       setLoadingTokens,
       'Token unstaked successfully!',
       'Transaction failed while unstaking.'
@@ -69,7 +67,7 @@ export default function Home() {
       const receipt = await waitForTransactionReceipt(config, { hash });
       const newToken = getTokenFromReceipt(receipt);
       if (newToken) {
-        setUnstakedTokensList((prev) => [...prev, newToken]);
+        setUnstakedTokens((prev) => [...prev, newToken]);
         toast.success('Token minted successfully!');
       } else {
         toast.warning('Mint succeeded, but no new token found. Try refreshing the page.');
@@ -96,22 +94,19 @@ export default function Home() {
       <div className="mb-6">
         <h2 className="text-2xl font-semibold mb-4">Staked NFTs</h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {stakedTokensList.length > 0 ? (
-            stakedTokensList.map((token) => (
-              <div
+          {stakedTokens.length > 0 ? (
+            stakedTokens.map((token) => (
+              <TokenCard
                 key={token.tokenId}
-                className="border rounded-2xl p-4 flex flex-col items-center bg-green-50 shadow-md"
-              >
-                <div className="text-lg font-semibold text-gray-800">Token ID: {token.tokenId.toString()}</div>
-                <Button
-                  variant="outline"
-                  className="cursor-pointer"
-                  onClick={() => handleUnstake(token.tokenId)}
-                  disabled={loadingTokens[token.tokenId.toString()] || isStaking || isUnstaking || isMinting}
-                >
-                  {loadingTokens[token.tokenId.toString()] ? 'Unstaking...' : 'Unstake'}
-                </Button>
-              </div>
+                tokenId={token.tokenId.toString()}
+                loadingTokens={loadingTokens}
+                handleUnstake={handleUnstake}
+                handleStake={handleStake}
+                isStaking={isStaking}
+                isUnstaking={isUnstaking}
+                isMinting={isMinting}
+                type="unstake"
+              />
             ))
           ) : (
             <div className="text-center text-gray-500">No tokens staked</div>
@@ -122,22 +117,19 @@ export default function Home() {
       <div>
         <h2 className="text-2xl font-semibold mb-4">Unstaked NFTs</h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {unstakedTokensList.length > 0 ? (
-            unstakedTokensList.map((token) => (
-              <div
+          {unstakedTokens.length > 0 ? (
+            unstakedTokens.map((token) => (
+              <TokenCard
                 key={token.tokenId}
-                className="border rounded-2xl p-4 flex flex-col items-center bg-yellow-50 shadow-md"
-              >
-                <div className="text-lg font-semibold text-gray-800">Token ID: {token.tokenId.toString()}</div>
-                <Button
-                  variant="default"
-                  className="cursor-pointer"
-                  onClick={() => handleStake(token.tokenId)}
-                  disabled={loadingTokens[token.tokenId.toString()] || isStaking || isUnstaking || isMinting}
-                >
-                  {loadingTokens[token.tokenId.toString()] ? 'Staking...' : 'Stake'}
-                </Button>
-              </div>
+                tokenId={token.tokenId.toString()}
+                loadingTokens={loadingTokens}
+                handleUnstake={handleUnstake}
+                handleStake={handleStake}
+                isStaking={isStaking}
+                isUnstaking={isUnstaking}
+                isMinting={isMinting}
+                type="stake"
+              />
             ))
           ) : (
             <div className="text-center text-gray-500">No tokens unstaked</div>
