@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { request, gql } from 'graphql-request';
 import { useAccount } from 'wagmi';
 
-const GRAPHQL_ENDPOINT = 'http://localhost:42069/';
+const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT as string;
 
 const TOKENS_QUERY = gql`
   query TokensQuery($user: String!) {
@@ -43,7 +43,10 @@ export function useTokens() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      setLoading(false);
+      return;
+    }
 
     async function fetchTokens() {
       try {

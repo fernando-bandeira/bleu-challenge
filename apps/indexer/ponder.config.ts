@@ -14,7 +14,7 @@ export default createConfig({
     BleuNFT: {
       network: 'anvil',
       abi: BleuNFTAbi,
-      address: '0xe7f1725e7734ce288f8367e1bb143e90bb3f0512',
+      address: process.env.CONTRACT_ADDRESS as `0x${string}`,
       startBlock: 0
     }
   }

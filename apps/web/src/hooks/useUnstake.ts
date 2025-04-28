@@ -3,7 +3,7 @@
 import { useWriteContract } from 'wagmi';
 import { BleuNFTAbi } from '@abis/BleuNFTAbi';
 
-const CONTRACT_ADDRESS = '0x5fc8d32690cc91d4c39d9d3abcbd16989f875707';
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`;
 
 export function useUnstake() {
   const { writeContractAsync, isPending } = useWriteContract();
