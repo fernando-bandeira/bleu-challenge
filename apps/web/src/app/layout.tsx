@@ -23,6 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <title>Tech Challenge - Bleu</title>
       <body className={cn(rubik.className, 'bg-background text-foreground')}>
         <Providers>
           <Header />
